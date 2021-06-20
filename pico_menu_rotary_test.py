@@ -33,6 +33,14 @@ clk_pin = Pin(clk, Pin.IN)  # Using 10K Pullup resistor on Rotary encoder dev bo
 
 # fonts = [glcdfont,tt14,tt24,tt32]
 
+# Colors
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLACK = (0, 0, 0)
+
+# Pos
+POS = [(45, 20), (45, 60), (45, 100), (45, 140)]
+
 spi = SPI(
     0,
     baudrate=40000000,
@@ -50,25 +58,33 @@ display = ILI9341(
     r=SCR_ROT)
 
 display.erase()
-display.fill_rectangle(0, 0, 240, 320, color=color565(0,0,0))    
+display.fill_rectangle(0, 0, 240, 320, color=color565(0,0,0))
 
-def menu_item(c1, c2, c3, x, y, font, Text):
-    display.set_pos(x, y)
+def menu_item(color, pos, font, Text):
+    """Menu item.
+
+    Args:
+        color: Color as a tuple (c1, c2, c3).
+        pos: Position as a tuple (x, y).
+        font: The font.
+        Text: The text to display.
+    """
+    display.set_pos(*pos)
     display.set_font(font)
-    display.set_color(color565(c1, c2, c3), color565(0, 0, 0))
+    display.set_color(color565(*color), color565(*BLACK))
     display.print(Text)
 
-def display_main():    
-    menu_item(255, 0, 0, 45, 20, tt32, 'Main Menu')
-    menu_item(0, 255, 0, 45, 60, tt24, 'SubMenu 1')
-    menu_item(0, 255, 0, 45, 100, tt24, 'SubMenu 2')
-    menu_item(0, 255, 0, 45, 140, tt24, 'SubMenu 3')
-    
-def display_SubMenu1():    
-    menu_item(0, 255, 0, 45, 20, tt32, 'SubMenu 1')
-    menu_item(0, 255, 0, 45, 60, tt24, 'Item 1')
-    menu_item(0, 255, 0, 45, 100, tt24, 'Item 2')
-    menu_item(0, 255, 0, 45, 140, tt24, 'Item 3')
+def display_main():
+    menu_item(RED, POS[0], tt32, 'Main Menu')
+    menu_item(GREEN, POS[1], tt24, 'SubMenu 1')
+    menu_item(GREEN, POS[2], tt24, 'SubMenu 2')
+    menu_item(GREEN, POS[3], tt24, 'SubMenu 3')
+
+def display_SubMenu1():
+    menu_item(GREEN, POS[0], tt32, 'SubMenu 1')
+    menu_item(GREEN, POS[1], tt24, 'Item 1')
+    menu_item(GREEN, POS[2], tt24, 'Item 2')
+    menu_item(GREEN, POS[3], tt24, 'Item 3')
 # time.sleep(1)
 
 display_main()
@@ -87,7 +103,7 @@ switch_state = False  # switch in open position, GP26 high
 def handle_interrupt(pin):
     global switch_state
     switch_state = True    # switch closed, GP26 low
-    
+
 def clk_pin_interrupt(pin):
     global a
     global b
@@ -97,7 +113,7 @@ def clk_pin_interrupt(pin):
     # print("dt_pin = ", b)
     global change
     change = True
-    
+
 sw.irq(trigger=Pin.IRQ_FALLING, handler=handle_interrupt)  # interrupt triggered when switch is pressed (closed)
 clk_pin.irq(trigger=Pin.IRQ_FALLING | Pin.IRQ_RISING, handler=clk_pin_interrupt)
 
@@ -113,63 +129,63 @@ while True:
             print("You are at Main Menu")
         # sleep(1)
         switch_state = False
-        
+
     # if previous_value != clk_pin.value():
     if change:   # implied change = True
         if ((a != b) and state == 0):
-            menu_item(0, 255, 0, 45, 20, tt32, 'Main Menu')
-            menu_item(255, 0, 0, 45, 60, tt24, 'SubMenu 1')
+            menu_item(GREEN, POS[0], tt32, 'Main Menu')
+            menu_item(RED, POS[1], tt24, 'SubMenu 1')
             state = 1 # Main Menu with text "SubMenu 1" highlighted
             # print("state = ", state)
         elif ((a == b) and state == 0):
-            menu_item(0, 255, 0, 45, 20, tt32, 'Main Menu')
-            menu_item(255, 0, 0, 45, 140, tt24, 'SubMenu 3')
+            menu_item(GREEN, POS[0], tt32, 'Main Menu')
+            menu_item(RED, POS[3], tt24, 'SubMenu 3')
             state = 3
         elif ((a != b) and state == 1):
-            menu_item(0, 255, 0, 45, 60, tt24, 'SubMenu 1')
-            menu_item(255, 0, 0, 45, 100, tt24, 'SubMenu 2')
+            menu_item(GREEN, POS[1], tt24, 'SubMenu 1')
+            menu_item(RED, POS[2], tt24, 'SubMenu 2')
             state = 2      # Main Menu with text "SubMenu 1" highlighted
             # print("state = ", state)
         elif ((a == b) and state == 1):
             #pass
-            menu_item(0, 255, 0, 45, 60, tt24, 'SubMenu 1')
-            menu_item(255, 0, 0, 45, 20, tt32, 'Main Menu')
+            menu_item(GREEN, POS[1], tt24, 'SubMenu 1')
+            menu_item(RED, POS[0], tt32, 'Main Menu')
             state = 0
         elif ((a != b) and state == 2):
-            menu_item(0, 255, 0, 45, 100, tt24, 'SubMenu 2')
-            menu_item(255, 0, 0, 45, 140, tt24, 'SubMenu 3')
+            menu_item(GREEN, POS[2], tt24, 'SubMenu 2')
+            menu_item(RED, POS[3], tt24, 'SubMenu 3')
             state = 3     # Main Menu with text "SubMenu 1" highlighted
             # print("state = ", state)
         elif ((a == b) and state == 2):
             #pass
-            menu_item(0, 255, 0, 45, 100, tt24, 'SubMenu 2')
-            menu_item(255, 0, 0, 45, 60, tt24, 'SubMenu 1')
+            menu_item(GREEN, POS[2], tt24, 'SubMenu 2')
+            menu_item(RED, POS[1], tt24, 'SubMenu 1')
             state = 1
         elif ((a != b) and state == 3):
-            menu_item(0, 255, 0, 45, 140, tt24, 'SubMenu 3')
-            menu_item(255, 0, 0, 45, 20, tt32, 'Main Menu')
+            menu_item(GREEN, POS[3], tt24, 'SubMenu 3')
+            menu_item(RED, POS[0], tt32, 'Main Menu')
             state = 0     # Main Menu with text "SubMenu 1" highlighted
             # print("state = ", state)
         elif ((a == b) and state == 3):
             #pass
-            menu_item(0, 255, 0, 45, 140, tt24, 'SubMenu 3')
-            menu_item(255, 0, 0, 45, 100, tt24, 'SubMenu 2')
+            menu_item(GREEN, POS[3], tt24, 'SubMenu 3')
+            menu_item(RED, POS[2], tt24, 'SubMenu 2')
             state = 2
         else:
             # pass
             print("At else statement")
             print("state = ", state)
-            
-                       
+
+
         # previous_value = clk_pin.value()
         change = False
-        
+
     time.sleep(0.1)
     #print("charge = ", change)
         # print(clk_pin.value())
     #print(state)
         # time.sleep(1)
-        
+
 """
 
 while True:
