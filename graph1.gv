@@ -1,0 +1,32 @@
+
+digraph  {
+    layout="neato"
+    #layout="dot"
+    label= "\nRotary Encoder/Menu STATE MACHINE
+    CW = One Click Rotary Encoder Clockwise
+    CCW = One Click Rotary Encoder CounterClockwise
+    Press = Press Rotary Encoder"
+    edge [len=2]
+    graph [bgcolor=white]
+    node [style=filled]
+    a [fillcolor="red" pos="0,1" label="State1"]
+    b [fillcolor="lightblue" pos="1,1" label="State2"]
+    c [fillcolor="green" pos="1,0" label="State3"]
+    d [fillcolor="orange" pos="0,0" label="State4"]
+    e [label="Program1"]
+    f [label="Program2"]
+    g [label="Program3"]
+    h [label="Program4"]
+
+    a -> b [label="CW"]; c -> b [label="CCW"]; d-> c [label="CCW"]; d -> a [label="CW"]
+    c -> d [taillabel="
+    CW"]
+    b -> c [label="CW"]
+    b -> a [label="CCW"]
+    a -> d [label="CCW"]
+
+    a -> e [len=2, taillabel="Press"]; e -> a [len=2, taillabel="Press"]
+    b -> f [len=2, taillabel="Press"]; f ->b [len=2, taillabel="Press"]
+    c -> g [len=2, taillabel="Press"]; g ->c [len=2, taillabel="Press"]
+    d -> h [len=2, taillabel="Press"]; h ->d [len=2, taillabel="Press"]
+  }
